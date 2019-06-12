@@ -18,6 +18,7 @@ package org.springframework.util;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Assertion utility class that assists in validating arguments.
@@ -99,6 +100,25 @@ public abstract class Assert {
 	@Deprecated
 	public static void isTrue(boolean expression) {
 		isTrue(expression, "[Assertion failed] - this expression must be true");
+	}
+
+
+	/**
+	 * Assert a boolean expression, throwing an {@code IllegalArgumentException}
+	 * if the expression evaluates to {@code false}.
+	 * <pre class="code">
+	 * Assert.isTrue(i &gt; 0, () -&gt; "The value '" + i + "' must be greater than zero");
+	 * </pre>
+	 * @param expression a boolean expression
+	 * @param messageSupplier a supplier for the exception message to use if the
+	 * assertion fails
+	 * @throws IllegalArgumentException if {@code expression} is {@code false}
+	 * @since 5.0
+	 */
+	public static void isTrue(boolean expression, Supplier<String> messageSupplier) {
+		if (!expression) {
+			throw new IllegalArgumentException(nullSafeGet(messageSupplier));
+		}
 	}
 
 	/**
@@ -415,4 +435,8 @@ public abstract class Assert {
 		return msg + (msg.endsWith(" ") ? "" : ": ") + typeName;
 	}
 
+	@Nullable
+	private static String nullSafeGet(@Nullable Supplier<String> messageSupplier) {
+		return (messageSupplier != null ? messageSupplier.get() : null);
+	}
 }
